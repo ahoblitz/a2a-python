@@ -27,7 +27,7 @@ class MockJSONResponse:
 @pytest.mark.asyncio
 async def test_rest_error_handler_server_error():
     """Test rest_error_handler with ServerError."""
-    error = InvalidRequestError(message="Bad request")
+    error = InvalidRequestError(message='Bad request')
 
     @rest_error_handler
     async def failing_func():
@@ -44,9 +44,10 @@ async def test_rest_error_handler_server_error():
 @pytest.mark.asyncio
 async def test_rest_error_handler_unknown_exception():
     """Test rest_error_handler with unknown exception."""
+
     @rest_error_handler
     async def failing_func():
-        raise ValueError("Unexpected error")
+        raise ValueError('Unexpected error')
 
     with patch('a2a.utils.error_handlers.JSONResponse', MockJSONResponse):
         result = await failing_func()
@@ -59,7 +60,7 @@ async def test_rest_error_handler_unknown_exception():
 @pytest.mark.asyncio
 async def test_rest_stream_error_handler_server_error():
     """Test rest_stream_error_handler with ServerError."""
-    error = InternalError(message="Internal server error")
+    error = InternalError(message='Internal server error')
 
     @rest_stream_error_handler
     async def failing_stream():
@@ -74,11 +75,12 @@ async def test_rest_stream_error_handler_server_error():
 @pytest.mark.asyncio
 async def test_rest_stream_error_handler_reraises_exception():
     """Test rest_stream_error_handler reraises other exceptions."""
+
     @rest_stream_error_handler
     async def failing_stream():
-        raise RuntimeError("Stream failed")
+        raise RuntimeError('Stream failed')
 
-    with pytest.raises(RuntimeError, match="Stream failed"):
+    with pytest.raises(RuntimeError, match='Stream failed'):
         await failing_stream()
 
 
