@@ -244,7 +244,9 @@ class DefaultRequestHandler(RequestHandler):
         """Validates that agent-generated task ID matches the expected task ID."""
         if task_id != event_task_id:
             logger.error(
-                f'Agent generated task_id={event_task_id} does not match the RequestContext task_id={task_id}.'
+                'Agent generated task_id=%s does not match the RequestContext task_id=%s.',
+                event_task_id,
+                task_id,
             )
             raise ServerError(
                 InternalError(message='Task ID mismatch in agent response')
@@ -286,11 +288,19 @@ class DefaultRequestHandler(RequestHandler):
 
         interrupted_or_non_blocking = False
         try:
+            # Create async callback for push notifications
+            async def push_notification_callback() -> None:
+                await self._send_push_notification_if_needed(
+                    task_id, result_aggregator
+                )
+
             (
                 result,
                 interrupted_or_non_blocking,
             ) = await result_aggregator.consume_and_break_on_interrupt(
-                consumer, blocking=blocking
+                consumer,
+                blocking=blocking,
+                event_callback=push_notification_callback,
             )
             if not result:
                 raise ServerError(error=InternalError())  # noqa: TRY301
