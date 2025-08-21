@@ -81,26 +81,32 @@ def append_artifact_to_task(task: Task, event: TaskArtifactUpdateEvent) -> None:
         if existing_artifact_list_index is not None:
             # Replace the existing artifact entirely with the new data
             logger.debug(
-                f'Replacing artifact at id {artifact_id} for task {task.id}'
+                'Replacing artifact at id %s for task %s', artifact_id, task.id
             )
             task.artifacts[existing_artifact_list_index] = new_artifact_data
         else:
             # Append the new artifact since no artifact with this index exists yet
             logger.debug(
-                f'Adding new artifact with id {artifact_id} for task {task.id}'
+                'Adding new artifact with id %s for task %s',
+                artifact_id,
+                task.id,
             )
             task.artifacts.append(new_artifact_data)
     elif existing_artifact:
         # Append new parts to the existing artifact's part list
         logger.debug(
-            f'Appending parts to artifact id {artifact_id} for task {task.id}'
+            'Appending parts to artifact id %s for task %s',
+            artifact_id,
+            task.id,
         )
         existing_artifact.parts.extend(new_artifact_data.parts)
     else:
         # We received a chunk to append, but we don't have an existing artifact.
         # we will ignore this chunk
         logger.warning(
-            f'Received append=True for nonexistent artifact index {artifact_id} in task {task.id}. Ignoring chunk.'
+            'Received append=True for nonexistent artifact index %s in task %s. Ignoring chunk.',
+            artifact_id,
+            task.id,
         )
 
 

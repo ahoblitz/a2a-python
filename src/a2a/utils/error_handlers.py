@@ -73,9 +73,10 @@ def rest_error_handler(
             )
             logger.log(
                 log_level,
-                'Request error: '
-                f"Code={error.code}, Message='{error.message}'"
-                f'{", Data=" + str(error.data) if error.data else ""}',
+                "Request error: Code=%s, Message='%s'%s",
+                error.code,
+                error.message,
+                ', Data=' + str(error.data) if error.data else '',
             )
             return JSONResponse(
                 content={'message': error.message}, status_code=http_code
@@ -110,9 +111,10 @@ def rest_stream_error_handler(
             )
             logger.log(
                 log_level,
-                'Request error: '
-                f"Code={error.code}, Message='{error.message}'"
-                f'{", Data=" + str(error.data) if error.data else ""}',
+                "Request error: Code=%s, Message='%s'%s",
+                error.code,
+                error.message,
+                ', Data=' + str(error.data) if error.data else '',
             )
             # Since the stream has started, we can't return a JSONResponse.
             # Instead, we runt the error handling logic (provides logging)

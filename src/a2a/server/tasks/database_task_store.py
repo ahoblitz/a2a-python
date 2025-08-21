@@ -53,7 +53,8 @@ class DatabaseTaskStore(TaskStore):
             table_name: Name of the database table. Defaults to 'tasks'.
         """
         logger.debug(
-            f'Initializing DatabaseTaskStore with existing engine, table: {table_name}'
+            'Initializing DatabaseTaskStore with existing engine, table: %s',
+            table_name,
         )
         self.engine = engine
         self.async_session_maker = async_sessionmaker(
