@@ -166,9 +166,7 @@ def trace_function(  # noqa: PLR0915
             attribute_extractor=attribute_extractor,
         )
 
-    actual_span_name = span_name or '{}.{}'.format(
-        func.__module__, func.__name__
-    )
+    actual_span_name = span_name or f'{func.__module__}.{func.__name__}'
 
     is_async_func = inspect.iscoroutinefunction(func)
 
@@ -325,7 +323,7 @@ def trace_class(
             if not include_list and name in exclude_list:
                 continue
 
-            span_name = '{}.{}.{}'.format(cls.__module__, cls.__name__, name)
+            span_name = f'{cls.__module__}.{cls.__name__}.{name}'
             setattr(
                 cls,
                 name,

@@ -135,7 +135,7 @@ class RestTransport(ClientTransport):
         async with aconnect_sse(
             self.httpx_client,
             'POST',
-            '{}/v1/message:stream'.format(self.url),
+            f'{self.url}/v1/message:stream',
             json=payload,
             **modified_kwargs,
         ) as event_source:
@@ -178,7 +178,7 @@ class RestTransport(ClientTransport):
         return await self._send_request(
             self.httpx_client.build_request(
                 'POST',
-                '{}{}'.format(self.url, target),
+                f'{self.url}{target}',
                 json=rpc_request_payload,
                 **(http_kwargs or {}),
             )
@@ -193,7 +193,7 @@ class RestTransport(ClientTransport):
         return await self._send_request(
             self.httpx_client.build_request(
                 'GET',
-                '{}{}'.format(self.url, target),
+                f'{self.url}{target}',
                 params=query_params,
                 **(http_kwargs or {}),
             )
@@ -308,7 +308,7 @@ class RestTransport(ClientTransport):
         async with aconnect_sse(
             self.httpx_client,
             'GET',
-            '{}/v1/tasks/{}:subscribe'.format(self.url, request.id),
+            f'{self.url}/v1/tasks/{request.id}:subscribe',
             **http_kwargs,
         ) as event_source:
             try:

@@ -108,10 +108,10 @@ class A2ARESTFastAPIApplication:
         router = APIRouter()
         for route, callback in self._adapter.routes().items():
             router.add_api_route(
-                '{}{}'.format(rpc_url, route[0]), callback, methods=[route[1]]
+                f'{rpc_url}{route[0]}', callback, methods=[route[1]]
             )
 
-        @router.get('{}{}'.format(rpc_url, agent_card_url))
+        @router.get(f'{rpc_url}{agent_card_url}')
         async def get_agent_card(request: Request) -> Response:
             card = await self._adapter.handle_get_agent_card(request)
             return JSONResponse(card)
