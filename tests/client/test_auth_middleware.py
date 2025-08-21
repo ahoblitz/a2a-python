@@ -295,8 +295,8 @@ async def test_auth_interceptor_variants(test_case, store):
     auth_interceptor = AuthInterceptor(credential_service=store)
     agent_card = AgentCard(
         url=test_case.url,
-        name='{}bot'.format(test_case.scheme_name),
-        description='A bot that uses {}'.format(test_case.scheme_name),
+        name=f'{test_case.scheme_name}bot',
+        description=f'A bot that uses {test_case.scheme_name}',
         version='1.0',
         default_input_modes=[],
         default_output_modes=[],

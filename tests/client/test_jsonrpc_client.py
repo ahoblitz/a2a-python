@@ -116,7 +116,7 @@ async def async_iterable_from_list(
 class TestA2ACardResolver:
     BASE_URL = 'http://example.com'
     AGENT_CARD_PATH = AGENT_CARD_WELL_KNOWN_PATH
-    FULL_AGENT_CARD_URL = '{}{}'.format(BASE_URL, AGENT_CARD_PATH)
+    FULL_AGENT_CARD_URL = f'{BASE_URL}{AGENT_CARD_PATH}'
     EXTENDED_AGENT_CARD_PATH = '/agent/authenticatedExtendedCard'
 
     @pytest.mark.asyncio
