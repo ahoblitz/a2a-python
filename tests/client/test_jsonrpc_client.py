@@ -200,8 +200,8 @@ class TestA2ACardResolver:
             http_kwargs=auth_kwargs,
         )
 
-        expected_extended_url = '{}/{}'.format(
-            self.BASE_URL, self.EXTENDED_AGENT_CARD_PATH.lstrip('/')
+        expected_extended_url = (
+            f'{self.BASE_URL}/{self.EXTENDED_AGENT_CARD_PATH.lstrip("/")}'
         )
         mock_httpx_client.get.assert_called_once_with(
             expected_extended_url, **auth_kwargs
