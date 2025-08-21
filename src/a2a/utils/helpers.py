@@ -139,6 +139,38 @@ def validate(
                     and returns a boolean.
         error_message: An optional custom error message for the `UnsupportedOperationError`.
                        If None, the string representation of the expression will be used.
+
+    Examples:
+        Basic usage with capability check:
+        >>> class MyAgent:
+        ...     def __init__(self):
+        ...         self.agent_card = AgentCard(
+        ...             capabilities=Capabilities(streaming=True)
+        ...         )
+        ...
+        ...     @validate(lambda self: self.agent_card.capabilities.streaming)
+        ...     async def stream_response(self, message: str):
+        ...         return f'Streaming: {message}'
+
+        With custom error message:
+        >>> class SecureAgent:
+        ...     def __init__(self):
+        ...         self.auth_enabled = False
+        ...
+        ...     @validate(
+        ...         lambda self: self.auth_enabled,
+        ...         'Authentication must be enabled for this operation',
+        ...     )
+        ...     def secure_operation(self, data: str):
+        ...         return f'Processing secure data: {data}'
+
+        Error case example:
+        >>> agent = SecureAgent()
+        >>> agent.secure_operation('secret')  # Raises ServerError
+        ServerError: UnsupportedOperationError(message="Authentication must be enabled for this operation")
+
+    Note:
+        This decorator works with both sync and async methods automatically.
     """
 
     def decorator(function: Callable) -> Callable:
@@ -174,7 +206,7 @@ def validate(
 def validate_async_generator(
     expression: Callable[[Any], bool], error_message: str | None = None
 ):
-    """Decorator that validates if a given expression evaluates to True.
+    """Decorator that validates if a given expression evaluates to True for async generators.
 
     Typically used on class methods to check capabilities or configuration
     before executing the method's logic. If the expression is False,
@@ -185,6 +217,44 @@ def validate_async_generator(
                     and returns a boolean.
         error_message: An optional custom error message for the `UnsupportedOperationError`.
                        If None, the string representation of the expression will be used.
+
+    Examples:
+        Streaming capability validation:
+        >>> class StreamingAgent:
+        ...     def __init__(self):
+        ...         self.agent_card = AgentCard(
+        ...             capabilities=Capabilities(streaming=True)
+        ...         )
+        ...
+        ...     @validate_async_generator(
+        ...         lambda self: self.agent_card.capabilities.streaming,
+        ...         'Streaming is not supported by this agent',
+        ...     )
+        ...     async def stream_messages(self, count: int):
+        ...         for i in range(count):
+        ...             yield f'Message {i}'
+
+        Feature flag validation:
+        >>> class FeatureAgent:
+        ...     def __init__(self):
+        ...         self.features = {'real_time': False}
+        ...
+        ...     @validate_async_generator(
+        ...         lambda self: self.features.get('real_time', False)
+        ...     )
+        ...     async def real_time_updates(self):
+        ...         async for update in self._get_updates():
+        ...             yield update
+
+        Error case - validation fails:
+        >>> agent = FeatureAgent()
+        >>> async for msg in agent.real_time_updates():
+        ...     print(msg)  # Raises ServerError before iteration starts
+        ServerError: UnsupportedOperationError(message="<lambda>")
+
+    Note:
+        This decorator is specifically for async generator methods (async def with yield).
+        The validation happens before the generator starts yielding values.
     """
 
     def decorator(function):
