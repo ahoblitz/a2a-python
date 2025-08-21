@@ -193,7 +193,9 @@ class EventQueue:
                 while True:
                     event = self.queue.get_nowait()
                     logger.debug(
-                        f'Discarding unprocessed event of type: {type(event)}, content: {event}'
+                        'Discarding unprocessed event of type: %s, content: %s',
+                        type(event),
+                        event,
                     )
                     self.queue.task_done()
                     cleared_count += 1
@@ -211,7 +213,8 @@ class EventQueue:
 
             if cleared_count > 0:
                 logger.debug(
-                    f'Cleared {cleared_count} unprocessed events from EventQueue.'
+                    'Cleared %d unprocessed events from EventQueue.',
+                    cleared_count,
                 )
 
         # Clear all child queues (lock released before awaiting child tasks)
