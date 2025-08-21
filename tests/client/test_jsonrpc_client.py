@@ -116,7 +116,7 @@ async def async_iterable_from_list(
 class TestA2ACardResolver:
     BASE_URL = 'http://example.com'
     AGENT_CARD_PATH = AGENT_CARD_WELL_KNOWN_PATH
-    FULL_AGENT_CARD_URL = f'{BASE_URL}{AGENT_CARD_PATH}'
+    FULL_AGENT_CARD_URL = '{}{}'.format(BASE_URL, AGENT_CARD_PATH)
     EXTENDED_AGENT_CARD_PATH = '/agent/authenticatedExtendedCard'
 
     @pytest.mark.asyncio
@@ -200,8 +200,8 @@ class TestA2ACardResolver:
             http_kwargs=auth_kwargs,
         )
 
-        expected_extended_url = (
-            f'{self.BASE_URL}/{self.EXTENDED_AGENT_CARD_PATH.lstrip("/")}'
+        expected_extended_url = '{}/{}'.format(
+            self.BASE_URL, self.EXTENDED_AGENT_CARD_PATH.lstrip('/')
         )
         mock_httpx_client.get.assert_called_once_with(
             expected_extended_url, **auth_kwargs
