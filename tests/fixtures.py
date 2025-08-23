@@ -1,19 +1,18 @@
 import pytest
 
-from builders import (
+from a2a.server.tasks import TaskManager
+from a2a.types import TaskState
+from tests.builders import (
     ArtifactBuilder,
     MessageBuilder,
     TaskBuilder,
 )
-from test_doubles import (
+from tests.test_doubles import (
     FakeHttpClient,
     InMemoryTaskStore,
     SpyEventQueue,
     StubPushNotificationConfigStore,
 )
-
-from a2a.server.tasks import TaskManager
-from a2a.types import TaskState
 
 
 @pytest.fixture

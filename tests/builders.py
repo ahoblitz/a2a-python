@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 from a2a.types import (
     Artifact,
@@ -20,9 +21,9 @@ class TaskBuilder:
     context_id: str = 'context-default'
     state: TaskState = TaskState.submitted
     kind: str = 'task'
-    artifacts: list = field(default_factory=list)
-    history: list = field(default_factory=list)
-    metadata: dict = field(default_factory=dict)
+    artifacts: list[Artifact] = field(default_factory=list)
+    history: list[Message] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def with_id(self, id: str) -> 'TaskBuilder':
         self.id = id
@@ -141,7 +142,7 @@ class StatusUpdateEventBuilder:
     state: TaskState = TaskState.working
     message: Message | None = None
     final: bool = False
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def for_task(self, task_id: str) -> 'StatusUpdateEventBuilder':
         self.task_id = task_id

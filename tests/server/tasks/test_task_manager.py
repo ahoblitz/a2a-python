@@ -1,19 +1,6 @@
-import sys
-
-from pathlib import Path
 from typing import Any
 
 import pytest
-
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from builders import (
-    ArtifactUpdateEventBuilder,
-    StatusUpdateEventBuilder,
-)
-from fixtures import *
-from test_doubles import InMemoryTaskStore
 
 from a2a.server.tasks import TaskManager
 from a2a.types import (
@@ -21,12 +8,30 @@ from a2a.types import (
     TaskState,
 )
 from a2a.utils.errors import ServerError
+from tests.builders import (
+    ArtifactUpdateEventBuilder,
+    StatusUpdateEventBuilder,
+)
+from tests.fixtures import (
+    artifact_builder,
+    event_queue,
+    http_client,
+    message_builder,
+    push_config_store,
+    submitted_task,
+    task_builder,
+    task_manager,
+    task_manager_factory,
+    task_store,
+)
+from tests.test_doubles import InMemoryTaskStore
 
 
 @pytest.mark.parametrize('invalid_task_id', ['', 123])
 def test_task_manager_invalid_task_id(
     task_store: InMemoryTaskStore, invalid_task_id: Any
 ):
+    """Test that TaskManager raises ValueError for an invalid task_id."""
     with pytest.raises(ValueError, match='Task ID must be a non-empty string'):
         TaskManager(
             task_id=invalid_task_id,
@@ -40,6 +45,7 @@ def test_task_manager_invalid_task_id(
 async def test_get_task_existing(
     task_manager_factory, task_store: InMemoryTaskStore, submitted_task
 ):
+    """Test retrieving an existing task from the task store."""
     task_manager = task_manager_factory(
         task_id=submitted_task.id, context_id=submitted_task.context_id
     )
@@ -55,6 +61,7 @@ async def test_get_task_existing(
 async def test_get_task_nonexistent(
     task_manager: TaskManager, task_store: InMemoryTaskStore
 ):
+    """Test retrieving a non-existent task returns None."""
     retrieved_task = await task_manager.get_task()
 
     assert retrieved_task is None
@@ -65,6 +72,7 @@ async def test_get_task_nonexistent(
 async def test_save_task_event_new_task(
     task_manager_factory, task_store: InMemoryTaskStore, task_builder
 ):
+    """Test saving a new task event to the task store."""
     task = task_builder.with_id('task-abc').build()
     task_manager = task_manager_factory(task_id=None, context_id=None)
 
@@ -81,6 +89,7 @@ async def test_save_task_event_status_update(
     task_builder,
     message_builder,
 ):
+    """Test saving a status update event for an existing task."""
     initial_task = (
         task_builder.with_id('task-abc').with_context_id('context-xyz').build()
     )
@@ -117,6 +126,7 @@ async def test_save_task_event_artifact_update(
     task_builder,
     artifact_builder,
 ):
+    """Test saving an artifact update event for an existing task."""
     initial_task = (
         task_builder.with_id('task-abc').with_context_id('context-xyz').build()
     )
@@ -151,6 +161,7 @@ async def test_save_task_event_artifact_update(
 async def test_save_task_event_metadata_update(
     task_manager_factory, task_store: InMemoryTaskStore, task_builder
 ):
+    """Test saving a metadata update event for an existing task."""
     initial_task = (
         task_builder.with_id('task-abc').with_context_id('context-xyz').build()
     )
@@ -178,6 +189,7 @@ async def test_save_task_event_metadata_update(
 async def test_ensure_task_existing(
     task_manager_factory, task_store: InMemoryTaskStore, submitted_task
 ):
+    """Test ensuring a task that already exists in the store."""
     task_store.set_task(submitted_task)
     task_manager = task_manager_factory(
         task_id=submitted_task.id, context_id=submitted_task.context_id
@@ -201,6 +213,7 @@ async def test_ensure_task_existing(
 async def test_ensure_task_nonexistent(
     task_store: InMemoryTaskStore, task_manager_factory
 ):
+    """Test ensuring a task that does not exist creates a new one."""
     task_manager = task_manager_factory(task_id=None, context_id=None)
 
     event = (
@@ -222,6 +235,7 @@ async def test_ensure_task_nonexistent(
 
 
 def test_init_task_obj(task_manager: TaskManager):
+    """Test initializing a new task object with default values."""
     new_task = task_manager._init_task_obj('new-task', 'new-context')
 
     assert new_task.id == 'new-task'
@@ -234,6 +248,7 @@ def test_init_task_obj(task_manager: TaskManager):
 async def test_save_task(
     task_manager: TaskManager, task_store: InMemoryTaskStore, submitted_task
 ):
+    """Test saving a task directly to the task store."""
     await task_manager._save_task(submitted_task)
 
     task_store.assert_save_called(times=1)
@@ -244,6 +259,7 @@ async def test_save_task(
 async def test_save_task_event_mismatched_id_raises_error(
     task_manager: TaskManager, task_builder
 ):
+    """Test that saving a task with mismatched ID raises an error."""
     mismatched_task = (
         task_builder.with_id('wrong-id').with_context_id('session-xyz').build()
     )
@@ -257,6 +273,7 @@ async def test_save_task_event_mismatched_id_raises_error(
 async def test_save_task_event_new_task_no_task_id(
     task_store: InMemoryTaskStore, task_manager_factory, task_builder
 ):
+    """Test saving a new task event when task manager has no task_id."""
     task_manager = task_manager_factory(task_id=None, context_id=None)
 
     task = (
@@ -279,6 +296,7 @@ async def test_save_task_event_new_task_no_task_id(
 async def test_get_task_no_task_id(
     task_store: InMemoryTaskStore, task_manager_factory
 ):
+    """Test get_task returns None when task manager has no task_id."""
     task_manager = task_manager_factory(task_id=None, context_id='some-context')
 
     retrieved_task = await task_manager.get_task()
@@ -291,6 +309,7 @@ async def test_get_task_no_task_id(
 async def test_save_task_event_no_task_existing(
     task_store: InMemoryTaskStore, task_manager_factory
 ):
+    """Test saving an event when no task exists creates a new task."""
     task_manager = task_manager_factory(task_id=None, context_id=None)
 
     event = (
