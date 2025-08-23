@@ -143,12 +143,10 @@ def validate(
     Examples:
         Basic usage with capability check:
         >>> class MyAgent:
-        ...     def __init__(self):
-        ...         self.agent_card = AgentCard(
-        ...             capabilities=Capabilities(streaming=True)
-        ...         )
+        ...     def __init__(self, streaming_enabled: bool):
+        ...         self.streaming_enabled = streaming_enabled
         ...
-        ...     @validate(lambda self: self.agent_card.capabilities.streaming)
+        ...     @validate(lambda self: self.streaming_enabled)
         ...     async def stream_response(self, message: str):
         ...         return f'Streaming: {message}'
 
@@ -165,9 +163,13 @@ def validate(
         ...         return f'Processing secure data: {data}'
 
         Error case example:
+        >>> from a2a.utils.errors import ServerError
         >>> agent = SecureAgent()
-        >>> agent.secure_operation('secret')  # Raises ServerError
-        ServerError: UnsupportedOperationError(message="Authentication must be enabled for this operation")
+        >>> try:
+        ...     agent.secure_operation('secret')
+        ... except ServerError as e:
+        ...     print(e.error.message)
+        Authentication must be enabled for this operation
 
     Note:
         This decorator works with both sync and async methods automatically.
@@ -221,36 +223,41 @@ def validate_async_generator(
     Examples:
         Streaming capability validation:
         >>> class StreamingAgent:
-        ...     def __init__(self):
-        ...         self.agent_card = AgentCard(
-        ...             capabilities=Capabilities(streaming=True)
-        ...         )
+        ...     def __init__(self, streaming_enabled: bool):
+        ...         self.streaming_enabled = streaming_enabled
         ...
         ...     @validate_async_generator(
-        ...         lambda self: self.agent_card.capabilities.streaming,
+        ...         lambda self: self.streaming_enabled,
         ...         'Streaming is not supported by this agent',
         ...     )
         ...     async def stream_messages(self, count: int):
         ...         for i in range(count):
         ...             yield f'Message {i}'
 
-        Feature flag validation:
+        Error case - validation fails:
+        >>> from a2a.utils.errors import ServerError
+        >>> import asyncio
+        >>>
         >>> class FeatureAgent:
         ...     def __init__(self):
         ...         self.features = {'real_time': False}
         ...
         ...     @validate_async_generator(
-        ...         lambda self: self.features.get('real_time', False)
+        ...         lambda self: self.features.get('real_time', False),
+        ...         'Real-time feature must be enabled to stream updates',
         ...     )
         ...     async def real_time_updates(self):
-        ...         async for update in self._get_updates():
-        ...             yield update
-
-        Error case - validation fails:
-        >>> agent = FeatureAgent()
-        >>> async for msg in agent.real_time_updates():
-        ...     print(msg)  # Raises ServerError before iteration starts
-        ServerError: UnsupportedOperationError(message="<lambda>")
+        ...         yield 'This should not be yielded'
+        >>> async def run_test():
+        ...     agent = FeatureAgent()
+        ...     try:
+        ...         async for _ in agent.real_time_updates():
+        ...             pass
+        ...     except ServerError as e:
+        ...         print(e.error.message)
+        >>>
+        >>> asyncio.run(run_test())
+        Real-time feature must be enabled to stream updates
 
     Note:
         This decorator is specifically for async generator methods (async def with yield).
