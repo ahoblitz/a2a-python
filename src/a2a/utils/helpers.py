@@ -141,16 +141,39 @@ def validate(
                        If None, the string representation of the expression will be used.
 
     Examples:
-        Basic usage with capability check:
+        Demonstrating with an async method:
+        >>> import asyncio
+        >>> from a2a.utils.errors import ServerError
+        >>>
         >>> class MyAgent:
         ...     def __init__(self, streaming_enabled: bool):
         ...         self.streaming_enabled = streaming_enabled
         ...
-        ...     @validate(lambda self: self.streaming_enabled)
+        ...     @validate(
+        ...         lambda self: self.streaming_enabled,
+        ...         'Streaming is not enabled for this agent',
+        ...     )
         ...     async def stream_response(self, message: str):
         ...         return f'Streaming: {message}'
+        >>>
+        >>> async def run_async_test():
+        ...     # Successful call
+        ...     agent_ok = MyAgent(streaming_enabled=True)
+        ...     result = await agent_ok.stream_response('hello')
+        ...     print(result)
+        ...
+        ...     # Call that fails validation
+        ...     agent_fail = MyAgent(streaming_enabled=False)
+        ...     try:
+        ...         await agent_fail.stream_response('world')
+        ...     except ServerError as e:
+        ...         print(e.error.message)
+        >>>
+        >>> asyncio.run(run_async_test())
+        Streaming: hello
+        Streaming is not enabled for this agent
 
-        With custom error message:
+        Demonstrating with a sync method:
         >>> class SecureAgent:
         ...     def __init__(self):
         ...         self.auth_enabled = False
@@ -161,9 +184,8 @@ def validate(
         ...     )
         ...     def secure_operation(self, data: str):
         ...         return f'Processing secure data: {data}'
-
-        Error case example:
-        >>> from a2a.utils.errors import ServerError
+        >>>
+        >>> # Error case example
         >>> agent = SecureAgent()
         >>> try:
         ...     agent.secure_operation('secret')
@@ -221,7 +243,10 @@ def validate_async_generator(
                        If None, the string representation of the expression will be used.
 
     Examples:
-        Streaming capability validation:
+        Streaming capability validation with success case:
+        >>> import asyncio
+        >>> from a2a.utils.errors import ServerError
+        >>>
         >>> class StreamingAgent:
         ...     def __init__(self, streaming_enabled: bool):
         ...         self.streaming_enabled = streaming_enabled
@@ -233,11 +258,18 @@ def validate_async_generator(
         ...     async def stream_messages(self, count: int):
         ...         for i in range(count):
         ...             yield f'Message {i}'
+        >>>
+        >>> async def run_streaming_test():
+        ...     # Successful streaming
+        ...     agent = StreamingAgent(streaming_enabled=True)
+        ...     async for msg in agent.stream_messages(2):
+        ...         print(msg)
+        >>>
+        >>> asyncio.run(run_streaming_test())
+        Message 0
+        Message 1
 
         Error case - validation fails:
-        >>> from a2a.utils.errors import ServerError
-        >>> import asyncio
-        >>>
         >>> class FeatureAgent:
         ...     def __init__(self):
         ...         self.features = {'real_time': False}
@@ -248,7 +280,8 @@ def validate_async_generator(
         ...     )
         ...     async def real_time_updates(self):
         ...         yield 'This should not be yielded'
-        >>> async def run_test():
+        >>>
+        >>> async def run_error_test():
         ...     agent = FeatureAgent()
         ...     try:
         ...         async for _ in agent.real_time_updates():
@@ -256,7 +289,7 @@ def validate_async_generator(
         ...     except ServerError as e:
         ...         print(e.error.message)
         >>>
-        >>> asyncio.run(run_test())
+        >>> asyncio.run(run_error_test())
         Real-time feature must be enabled to stream updates
 
     Note:
