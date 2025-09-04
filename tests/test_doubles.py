@@ -16,15 +16,15 @@ class InMemoryTaskStore(TaskStore):
         self._get_count = 0
         self._delete_count = 0
 
-    async def save(self, task: Task) -> None:
+    async def save(self, task: Task, context: Any = None) -> None:
         self._save_count += 1
         self._tasks[task.id] = task
 
-    async def get(self, task_id: str) -> Task | None:
+    async def get(self, task_id: str, context: Any = None) -> Task | None:
         self._get_count += 1
         return self._tasks.get(task_id)
 
-    async def delete(self, task_id: str) -> None:
+    async def delete(self, task_id: str, context: Any = None) -> None:
         self._delete_count += 1
         self._tasks.pop(task_id, None)
 
