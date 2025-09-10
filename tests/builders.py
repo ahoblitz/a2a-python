@@ -200,12 +200,14 @@ class ArtifactUpdateEventBuilder:
         return self
 
     def build(self) -> TaskArtifactUpdateEvent:
-        if not self.artifact:
-            self.artifact = ArtifactBuilder().build()
+        artifact = self.artifact
+        if not artifact:
+            artifact = ArtifactBuilder().build()
         return TaskArtifactUpdateEvent(
             task_id=self.task_id,
             context_id=self.context_id,
-            artifact=self.artifact,
+            artifact=artifact,
             append=self.append,
             last_chunk=self.last_chunk,
         )
+
