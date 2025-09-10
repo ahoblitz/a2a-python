@@ -25,9 +25,10 @@ class TaskBuilder:
     history: list[Message] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def with_id(self, id: str) -> 'TaskBuilder':
-        self.id = id
+    def with_id(self, task_id: str) -> 'TaskBuilder':
+        self.id = task_id
         return self
+
 
     def with_context_id(self, context_id: str) -> 'TaskBuilder':
         self.context_id = context_id
