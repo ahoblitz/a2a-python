@@ -108,12 +108,13 @@ def task_manager_factory(task_store):
 
 
 @pytest.fixture
-def populated_task_store(task_store, task_builder):
+def populated_task_store(task_store):
     tasks = [
-        task_builder.with_id('task-1').with_state(TaskState.submitted).build(),
-        task_builder.with_id('task-2').with_state(TaskState.working).build(),
-        task_builder.with_id('task-3').with_state(TaskState.completed).build(),
+        TaskBuilder().with_id('task-1').with_state(TaskState.submitted).build(),
+        TaskBuilder().with_id('task-2').with_state(TaskState.working).build(),
+        TaskBuilder().with_id('task-3').with_state(TaskState.completed).build(),
     ]
     for task in tasks:
         task_store.set_task(task)
     return task_store
+
