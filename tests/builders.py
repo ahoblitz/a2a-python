@@ -29,7 +29,6 @@ class TaskBuilder:
         self.id = task_id
         return self
 
-
     def with_context_id(self, context_id: str) -> 'TaskBuilder':
         self.context_id = context_id
         return self
@@ -210,4 +209,3 @@ class ArtifactUpdateEventBuilder:
             append=self.append,
             last_chunk=self.last_chunk,
         )
-

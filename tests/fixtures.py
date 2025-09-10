@@ -74,7 +74,6 @@ def task_with_history(task_builder):
     return task_builder.with_history(*messages).build()
 
 
-
 @pytest.fixture
 def task_with_artifacts(task_builder):
     artifacts = [
@@ -82,7 +81,6 @@ def task_with_artifacts(task_builder):
         ArtifactBuilder().with_id('art2').with_name('data.json').build(),
     ]
     return task_builder.with_artifacts(*artifacts).build()
-
 
 
 @pytest.fixture
@@ -118,4 +116,3 @@ def populated_task_store(task_store):
     for task in tasks:
         task_store.set_task(task)
     return task_store
-
