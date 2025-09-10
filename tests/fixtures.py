@@ -66,12 +66,13 @@ def completed_task(task_builder):
 
 
 @pytest.fixture
-def task_with_history(task_builder, message_builder):
+def task_with_history(task_builder):
     messages = [
-        message_builder.as_user().with_text('Hello').build(),
-        message_builder.as_agent().with_text('Hi there!').build(),
+        MessageBuilder().as_user().with_text('Hello').build(),
+        MessageBuilder().as_agent().with_text('Hi there!').build(),
     ]
     return task_builder.with_history(*messages).build()
+
 
 
 @pytest.fixture
