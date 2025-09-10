@@ -76,12 +76,13 @@ def task_with_history(task_builder):
 
 
 @pytest.fixture
-def task_with_artifacts(task_builder, artifact_builder):
+def task_with_artifacts(task_builder):
     artifacts = [
-        artifact_builder.with_id('art1').with_name('file.txt').build(),
-        artifact_builder.with_id('art2').with_name('data.json').build(),
+        ArtifactBuilder().with_id('art1').with_name('file.txt').build(),
+        ArtifactBuilder().with_id('art2').with_name('data.json').build(),
     ]
     return task_builder.with_artifacts(*artifacts).build()
+
 
 
 @pytest.fixture
